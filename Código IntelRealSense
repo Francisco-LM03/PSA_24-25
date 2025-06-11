@@ -1,0 +1,65 @@
+%Código utilizado na representação das capturas retiradas utilizando a câmara Intel RealSense L515
+
+clc, clear all
+close all
+
+% 
+% bagMsgs = rosbagreader with properties:
+% 
+%            FilePath: C:\Users\User\OneDrive\Ambiente de Trabalho\UNI\4º Ano\2º Semestre\Projeto de Sistemas de Automação\Prática\tentativa l515
+%           StartTime: 201.3400
+%             EndTime: 321.3400
+%         NumMessages: 36963
+%     AvailableTopics: [4x3 table]
+%     AvailableFrames: {0x1 cell}
+%         MessageList: [36963x4 table]
+
+dir
+
+filepath= 'C:\teste_rosbag\dados2.bag'
+bagreader = rosbagreader(filepath)
+
+imageBag = select(bagreader,'Topic','/device_0/sensor_0/Depth_0/image/data');
+imageMsgs = readMessages(imageBag);
+bagreader.MessageList
+
+% Criar objeto de vídeo
+videoFilename = 'video_dados2.avi';
+v = VideoWriter(videoFilename);
+v.FrameRate = 10;  % Podes ajustar a velocidade
+open(v);
+
+
+% for i = 10:400
+%     I = readImage(imageMsgs{i});
+%     i
+% 
+%     maximo = double(max(max(I)));
+%     I = double(I)/maximo;
+%     imshow(I)
+% 
+%     pause(0.000001)
+%     % _strPadded,'.png');
+%     % imwrite(I,imageFileName);
+% 
+% end
+
+for i = 1:200
+    I = readImage(imageMsgs{i});
+    I = double(I);
+
+    % Normaliza para [0, 1]
+    I = I ./ max(I(:));
+
+    % Mostra a imagem com colormap
+    imshow(I, []);
+    colormap('turbo');  % Podes mudar para 'hot', 'parula', 'turbo', etc.
+    drawnow;
+
+    % Capturar o frame atual da figura
+    frame = getframe(gcf);
+    writeVideo(v, frame);
+end
+
+
+close(v);
